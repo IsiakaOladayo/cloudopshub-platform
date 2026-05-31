@@ -4,8 +4,6 @@ name: cloudopshub-local
 
 nodes:
   - role: control-plane
-  - role: worker
-  - role: worker
 
 networking:
   disableDefaultCNI: false
