@@ -1,0 +1,70 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: member-a-infra
+  labels:
+    owner: infra
+    environment: local
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: member-b-cicd
+  labels:
+    owner: cicd
+    environment: local
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: member-c-gitops
+  labels:
+    owner: gitops
+    environment: local
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: member-d-observability
+  labels:
+    owner: observability
+    environment: local
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: member-e-security
+  labels:
+    owner: security
+    environment: local
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: member-f-autoscaling
+  labels:
+    owner: autoscaling
+    environment: local
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: observability
+  labels:
+    owner: observability1
+    environment: local
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: argocd
+  labels:
+    owner: argocd
+    environment: local
