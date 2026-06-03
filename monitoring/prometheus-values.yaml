@@ -1,0 +1,40 @@
+# Prometheus configuration for CloudOpsHub
+prometheus:
+  prometheusSpec:
+    retention: 7d
+    resources:
+      requests:
+        cpu: 200m
+        memory: 512Mi
+      limits:
+        cpu: 500m
+        memory: 1Gi
+
+grafana:
+  adminPassword: CloudOps2025!
+  service:
+    type: ClusterIP
+
+alertmanager:
+  enabled: true
+  config:
+    global:
+      slack_api_url: "YOUR_SLACK_WEBHOOK_URL"
+    route:
+      group_by: ['alertname']
+      group_wait: 30s
+      group_interval: 5m
+      repeat_interval: 12h
+      receiver: 'slack-notifications'
+    receivers:
+    - name: 'slack-notifications'
+      slack_configs:
+      - channel: '#alerts'
+        title: '🔔 Alert: {{ .CommonAnnotations.summary }}'
+        text: '{{ range .Alerts }}{{ .Annotations.description }}{{ end }}'
+
+nodeExporter:
+  enabled: true
+
+kubeStateMetrics:
+  enabled: true

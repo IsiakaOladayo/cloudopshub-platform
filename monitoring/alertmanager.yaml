@@ -1,0 +1,28 @@
+# AlertManager configuration for CloudOpsHub
+apiVersion: v1
+kind: Secret
+metadata:
+  name: alertmanager-config
+  namespace: member-d-observability
+stringData:
+  alertmanager.yaml: |
+    global:
+      slack_api_url: 'YOUR_SLACK_WEBHOOK_URL'
+    
+    route:
+      group_by: ['alertname', 'cluster']
+      group_wait: 30s
+      group_interval: 5m
+      repeat_interval: 12h
+      receiver: 'slack-alerts'
+    
+    receivers:
+    - name: 'slack-alerts'
+      slack_configs:
+      - channel: '#devops-alerts'
+        title: '🚨 {{ .GroupLabels.alertname }}'
+        text: |
+          *Cluster:* {{ .Labels.cluster }}
+          *Namespace:* {{ .Labels.namespace }}
+          *Severity:* {{ .Labels.severity }}
+          *Description:* {{ .Annotations.description }}

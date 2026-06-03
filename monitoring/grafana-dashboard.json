@@ -1,0 +1,40 @@
+{
+  "dashboard": {
+    "title": "CloudOpsHub Kubernetes Monitoring",
+    "tags": ["kubernetes", "cloudopshub"],
+    "timezone": "browser",
+    "panels": [
+      {
+        "title": "Nodes",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "count(up{job=\"kubelet\"})",
+            "format": "time_series"
+          }
+        ]
+      },
+      {
+        "title": "Running Pods",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "count(up{metrics_path=\"/metrics/cadvisor\"})",
+            "format": "time_series"
+          }
+        ]
+      },
+      {
+        "title": "Memory Usage",
+        "type": "timeseries",
+        "targets": [
+          {
+            "expr": "sum(container_memory_usage_bytes)",
+            "format": "time_series"
+          }
+        ]
+      }
+    ]
+  },
+  "overwrite": true
+}
