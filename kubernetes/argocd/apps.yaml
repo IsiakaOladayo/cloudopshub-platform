@@ -1,0 +1,40 @@
+# apps.yaml — ArgoCD Applications
+---
+# Staging App (deploys to local cluster)
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: cloudopshub-staging
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/IsiakaOladayo/cloudopshub-platform
+    targetRevision: staging
+    path: kubernetes/manifests
+  destination:
+    server: https://kubernetes.default.svc   # Local cluster
+    namespace: staging
+  syncPolicy:
+    automated:
+      prune: true     # Remove resources not in Git
+      selfHeal: true  # Fix any manual changes
+---
+# Production App (deploys to AWS EKS)
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: cloudopshub-production
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/IsiakaOladayo/cloudopshub-platform
+    targetRevision: main
+    path: kubernetes/manifests
+  destination:
+    server: https://YOUR_EKS_ENDPOINT   # AWS EKS cluster
+    namespace: production
+  syncPolicy:
+    syncOptions: [CreateNamespace=true]
+    # No 'automated' here = manual approval required for prod

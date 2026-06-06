@@ -1,0 +1,14 @@
+# backend-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: cloudopshub-backend
+  namespace: production
+spec:
+  selector:
+    app: cloudopshub-backend
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 5000
+  type: LoadBalancer   # AWS will assign a public IP automatically

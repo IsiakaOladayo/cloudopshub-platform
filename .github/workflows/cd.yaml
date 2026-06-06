@@ -1,0 +1,61 @@
+# cd.yml — Continuous Delivery / Deployment Pipeline
+name: CD Pipeline
+
+on:
+  workflow_run:
+    workflows: ['CI Pipeline']
+    types: [completed]
+    branches: [main]
+
+jobs:
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v3
+
+      - name: Configure kubectl for local cluster
+        run: |
+          echo '${{ secrets.KUBECONFIG_LOCAL }}' > kubeconfig.yaml
+          export KUBECONFIG=kubeconfig.yaml
+
+      - name: Sync ArgoCD Staging
+        run: |
+          argocd app sync cloudopshub-staging --server localhost:8080 --auth-token ${{ secrets.ARGOCD_TOKEN }}
+          argocd app wait cloudopshub-staging --health
+
+      - name: Notify Slack — Staging Deployed
+        uses: slackapi/slack-github-action@v1
+        with:
+          channel-id: 'devops-alerts'
+          slack-message: '✅ Staging deployed successfully. SHA: ${{ github.sha }}'
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_TOKEN }}
+
+  deploy-production:
+    name: Deploy to Production
+    needs: deploy-staging
+    runs-on: ubuntu-latest
+    environment:
+      name: production   # Requires manual approval in GitHub
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy to AWS EKS via ArgoCD
+        run: |
+          argocd app sync cloudopshub-production --server localhost:8080 --auth-token ${{ secrets.ARGOCD_TOKEN }}
+          argocd app wait cloudopshub-production --health --timeout 300
+
+      - name: Notify Slack — Production Deployed
+        uses: slackapi/slack-github-action@v1
+        with:
+          channel-id: 'devops-alerts'
+          slack-message: '🚀 Production deployed! SHA: ${{ github.sha }}'
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_TOKEN }}
